@@ -1,0 +1,30 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <title>Document</title>
+</head>
+<body>
+<section id="step-1" class="registration-step ">
+    <div class="container">
+        <div class="step-content">
+            <form action="{% url 'index' %}"><button type="submit">Back</button></form>
+            <h1 class="step-title">Ro’yxatdan o’tish</h1>
+            <form action="{% url 'register' %}" method="post">
+                {% csrf_token %}
+                <input name="email" type="email" class="input-email" placeholder="E-pochta" required>
+                <div class="next-btn-wrap">
+                    <button type="submit" class="next-btn">Tasdiqlash</button>
+                </div>
+            </form>
+            <div style="text-align: center; text-decoration: none">
+                <a href="{% url 'login' %}">Already have an account?</a>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>

@@ -1,0 +1,73 @@
+{% extends 'admin2/admin-base.html' %}
+{% load static %}
+
+{% block main %}
+    <form method="post" class="main__nav">
+        <div class="search">
+            <input type="search" name="search" id="" placeholder="Search"/>
+            <button type="submit">
+                <img src="{% static 'images/search-icon.svg' %}" alt=""/>
+            </button>
+        </div>
+    </form>
+    <div class="submit">
+        <button type="button" id="add-book-btn">Qo'shish</button>
+    </div>
+    <div class="unit-list">
+        <ul>
+            {% for book in books %}
+                <li class="unit-list-item" data-book-id="{{ book.id }}">
+                    <span class="book-name">{{ book.name }}</span>
+                    <div class="right">
+                        <span>Essential {{ book.level }}</span>
+                        <button class="edit-btn"><img src="{% static 'images/edit-2%20copy%203.svg' %}" alt="edit"/></button>
+                        <form action="{% url 'book-delete' book.id %}" method="post">
+                            {% csrf_token %}
+                            <button type="submit"><img src="{% static 'images/edit-2%20copy%204.svg' %}" alt="delete"/>
+                            </button>
+                        </form>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock %}
+
+{% block change %}
+    <!-- Edit Book Modal -->
+    <div class="modal hidden" id="edit-book-modal">
+        <form action="{% url 'book-update' 0 %}" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <h1>Kitob o’zgartirish</h1>
+            <input type="text" name="name" id="edit-book-name" placeholder="Nomi" required/>
+            <input type="number" name="level" id="edit-book-level" placeholder="Level" required/>
+            <div class="file-uploader">
+                <label for="edit-book-file">
+                <span>
+                    <img src="{% static 'images/file-icon.svg' %}" alt=""/> Fayl joylang
+                </span>
+                </label>
+                <input type="file" id="edit-book-file" name="image"/>
+            </div>
+            <div class="buttons">
+                <button class="cancel-btn unversal-btn" type="reset">Orqaga</button>
+                <button class="unversal-btn add-btn" type="submit">Saqlash</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Add Book Modal -->
+    <div class="modal hidden" id="add-book-modal">
+        <form action="{% url 'book-create' %}" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <h1>Kitob qo’shish</h1>
+            <input type="text" name="name" placeholder="Nomi" required/>
+            <input type="number" name="level" placeholder="Level" required/>
+            <input type="file" name="image" placeholder="Rasm" required/>
+            <div class="buttons">
+                <button class="cancel-btn unversal-btn" type="reset">Orqaga</button>
+                <button class="unversal-btn add-btn" type="submit">Qo'shish</button>
+            </div>
+        </form>
+    </div>
+{% endblock %}

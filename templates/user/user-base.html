@@ -1,0 +1,81 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <title>Document</title>
+    {% block head %}
+
+    {% endblock %}
+</head>
+<body>
+<nav>
+    <div class="container">
+        <div class="nav-content">
+            <div class="nav-content--left">
+                <a href="/"><img src="{% static 'images/Logo%201.svg' %}" alt="Logo Essential" class="nav-logo"></a>
+                <div class="nav-link-wrap">
+                    {% if request.user.is_authenticated %}
+                        <a class="nav-link" href="{% url 'essential' %}">Essential</a>
+                        <a class="nav-link" href="{% url 'index' %}">O’yinlar</a>
+                        <a class="nav-link" href="{% url 'tests' %}">Testlar</a>
+                    {% else %}
+                        <a class="nav-link" href="{% url 'register' %}">Essential</a>
+                        <a class="nav-link" href="{% url 'register' %}">O’yinlar</a>
+                        <a class="nav-link" href="{% url 'register' %}">Testlar</a>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="nav-content--right">
+                {% if request.user.is_authenticated %}
+                    {% if request.user.role == 'admin' %}
+                        <a class="nav-button" href="{% url 'panel' %}">Admin</a>
+                        <p>{{ request.user.email }}</p><a href="{% url 'logout' %}">Logout</a>
+                    {% else %}
+                        <p>{{ request.user.email }}</p><a href="{% url 'logout' %}">Logout</a>
+                    {% endif %}
+                {% else %}
+                    <a class="nav-button" href="{% url 'login' %}">Kirish</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</nav>
+{% block main %}
+
+{% endblock %}
+
+<footer>
+    <div class="container">
+        <div class="footer-content">
+            <div class="footer-content--left">
+                <p class="footer-title">Asoschilar</p>
+                <div class="footer-associates">
+                    <img src="{% static 'images/asoschi_1.svg' %}" alt="Founder 1">
+                    <img src="{% static 'images/asoschi_2.svg' %}" alt="Founder 2">
+                </div>
+            </div>
+            <div class="footer-content--right">
+                <ul class="footer-links">
+                    <li class="footer-links-title">Bog’lanish</li>
+                    <li><a class="footer-links-item" href="mailto:muhiddinsobirov957@gmail.com">muhiddinsobirov957@gmail.com</a>
+                    </li>
+                    <li><a class="footer-links-item" href="mailto:abdusaitov@gmail.com">abdusaitov@gmail.com</a></li>
+                </ul>
+                <ul class="footer-links">
+                    <li class="footer-links-title">Bo’limlar</li>
+                    <li><a class="footer-links-item" href="./index.html">Asosiy</a></li>
+                    <li><a class="footer-links-item" href="essential.html">Essential</a></li>
+                    <li><a class="footer-links-item" href="./index.html">O’yinlar</a></li>
+                    <li><a class="footer-links-item" href="tests.html">Test</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</footer>
+</body>
+<script src="{% static 'js/main.js' %}"></script>
+</html>

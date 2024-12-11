@@ -1,0 +1,149 @@
+{% extends 'user/user-base.html' %}
+{% load static %}
+{% block head %}
+    <style>
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: #fff;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            border-radius: 8px;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .unit-list ul {
+            list-style: none;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .unit-list li button {
+            background: none;
+            border: none;
+            color: blue;
+            font-size: 16px;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+    </style>
+{% endblock %}
+
+{% block main %}
+    <div class="unit-list">
+        <ul>
+            {% for test in tests %}
+                <li class="unit-list-item">
+                    <button
+                        class="open-modal-button"
+                        data-test-section-id="{{ test.id }}"
+                        data-url="{% url 'test-detail' test.id %}">
+                        {{ test.title }}
+                    </button>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div id="testModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 id="modalTestTitle"></h2>
+            <ul id="modalQuestionsList"></ul>
+        </div>
+    </div>
+{% endblock %}
+{% block change %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Modalni yangilash funksiyasi
+        function updateModalContent(testTitle, questions) {
+            const modalTestTitle = document.getElementById('modalTestTitle');
+            const modalQuestionsList = document.getElementById('modalQuestionsList');
+
+            modalTestTitle.textContent = testTitle;
+            modalQuestionsList.innerHTML = '';
+
+            questions.forEach(test => {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <p><strong>${test.question}</strong></p>
+                    <ul>
+                        <li>A: ${test.a}</li>
+                        <li>B: ${test.b}</li>
+                        <li>C: ${test.c}</li>
+                        <li>D: ${test.d}</li>
+                    </ul>
+                `;
+                modalQuestionsList.appendChild(li);
+            });
+        }
+
+        // Modalni ochish funksiyasi
+        function openModal() {
+            const modal = document.getElementById('testModal');
+            modal.style.display = 'block';
+        }
+
+        // Modalni yopish funksiyasi
+        function closeModal() {
+            const modal = document.getElementById('testModal');
+            modal.style.display = 'none';
+        }
+
+        // Modalni ochish uchun tugmalar
+        const buttons = document.querySelectorAll('.open-modal-button');
+        buttons.forEach(button => {
+            button.addEventListener('click', function () {
+                const testTitle = button.textContent;
+                const url = button.dataset.url;
+
+                fetch(url)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        updateModalContent(testTitle, data);
+                        openModal();
+                    })
+                    .catch(error => console.error('Error:', error));
+            });
+        });
+
+        // Modalni yopish uchun hodisalar
+        const closeModalButton = document.querySelector('.close');
+        closeModalButton.addEventListener('click', closeModal);
+
+        window.addEventListener('click', function (event) {
+            const modal = document.getElementById('testModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        });
+    });
+</script>
+{% endblock %}

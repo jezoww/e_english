@@ -1,0 +1,24 @@
+url:
+
+    login +
+    email +
+    verify +
+    register +
+    logout +
+    panel/unit/list' +
+    panel/unit/create' +
+    panel/unit/delete' +
+    panel/unit/update' +
+    panel/unit/search' +
+
+    panel/book/list' +
+    panel/book/create' +
+    panel/book/delete' +
+    panel/book/update' +
+    panel/book/search' +
+
+    panel/vocab/list' +
+    panel/vocab/create' +
+    panel/vocab/delete' +
+    panel/vocab/update' +
+    panel/vocab/search' +

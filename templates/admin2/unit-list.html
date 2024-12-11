@@ -1,0 +1,100 @@
+{% extends 'admin2/admin-base.html' %}
+{% load static %}
+{% block main %}
+    <form method="post" class="main__nav">
+        {% csrf_token %}
+        <div class="search">
+            <input
+                    type="search"
+                    name="search"
+                    id=""
+                    placeholder="Problem title"
+            />
+            <button>
+                <img src="{% static 'images/search-icon.svg' %}" alt=""/>
+            </button>
+        </div>
+    </form>
+    <div class="submit">
+        <button type="button">Qo'shish</button>
+    </div>
+    <div class="unit-list">
+        <ul>
+            {% for unit in units %}
+                <li class="unit-list-item" data-book-id="{{ unit.book.id }}" data-unit-id="{{ unit.id }}">
+                    Unit {{ unit.unit_num }}: {{ unit.name }}
+                    <div class="right">
+                        <span>{{ unit.book.name }} {{ unit.book.level }}</span>
+                        <button class="edit-unit-btn">
+                            <img src="{% static 'images/edit-2%20copy%203.svg' %}" alt="edit"/>
+                        </button>
+                        <form action="{% url 'unit-delete' unit.id %}" method="post">
+                            {% csrf_token %}
+                            <button type="submit">
+                                <img src="{% static 'images/edit-2%20copy%204.svg' %}" alt="delete"/>
+                            </button>
+                        </form>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock %}
+{% block change %}
+
+    <div class="modal hidden" id="edit-unit-modal">
+        <form action="{% url 'unit-update' 0 %}" method="post">
+            {% csrf_token %}
+            <h1>Mavzu o’zgartirish</h1>
+            <input
+                    type="text"
+                    name="name"
+                    placeholder="Nomi"
+            />
+            <input type="number" name="unit_num" placeholder="Unit raqami"/>
+            <div class="books-group">
+                <div class="books-dropdown-wrapper">
+                    <input type="text" id="books-input" placeholder="Kitob" readonly>
+                    <img class="dropdown-icon" src="{% static 'images/Vector.svg' %}" alt="Dropdown arrow">
+                </div>
+                <select name="book_id" id="book_id">
+                    {% for book in books %}
+                        <option value="{{ book.id }}">{{ book.name }} {{ book.level }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="buttons">
+                <button class="cancel-btn unversal-btn" type="reset">Orqaga</button>
+                <button class="unversal-btn add-btn" type="submit">O'zgartirish</button>
+            </div>
+        </form>
+    </div>
+
+
+    <!-- Add topic -->
+
+    <div class="modal hidden" id="add-unit-modal">
+        <form method="post" action="{% url 'unit-create' %}">
+            {% csrf_token %}
+            <h1>Mavzu qo’shish</h1>
+            <input type="number" name="unit_num" placeholder="Unit raqami" id=""/>
+            <input type="text" name="name" placeholder="Nomi" id=""/>
+            <div class="books-group">
+                <div class="books-dropdown-wrapper">
+                    <input type="text" id="books-input" placeholder="Kitob" readonly>
+                    <img class="dropdown-icon" src="{% static 'images/Vector.svg' %}" alt="Dropdown arrow">
+                </div>
+                <select name="book_id" id="book_id">
+                    {% for book in books %}
+                        <option value="{{ book.id }}">{{ book.name }} {{ book.level }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="buttons">
+                <button class="cancel-btn unversal-btn" type="reset">Orqaga</button>
+                <button class="unversal-btn add-btn" type="submit">Qo'shish</button>
+            </div>
+        </form>
+    </div>
+{% endblock %}
+

@@ -1,0 +1,216 @@
+{% extends 'admin2/admin-base.html' %}
+{% load static %}
+{% block main %}
+    <form action="#" class="main__nav">
+        <div class="search">
+            <input
+                    type="search"
+                    name="problem_title"
+                    id=""
+                    placeholder="Problem title"
+            />
+            <button>
+                <img src="{% static 'images/search-icon.svg' %}" alt=""/>
+            </button>
+        </div>
+    </form>
+    <div class="submit add-test">
+        <button type="button">Test qo'shish</button>
+    </div>
+
+    <div class="submit add-test-section" id="create-test-section">
+        <button type="button">Test section qo'shish</button>
+    </div>
+
+    <div class="unit-list">
+        <ul>
+            {% for test in tests %}
+                <li class="unit-list-item">
+                    {{ test.question }}
+                    <div class="right">
+                        <span>{{ test.test_section.title }}</span>
+                        <button>
+                            <img
+                                    src="{% static 'images/edit-2%20copy%203.svg' %}"
+                                    alt="edit"
+                                    class="edit-test-btn"
+                                    data-test-id="{{ test.id }}"
+                                    data-test-question="{{ test.question }}"
+                                    data-test-a="{{ test.a }}"
+                                    data-test-b="{{ test.b }}"
+                                    data-test-c="{{ test.c }}"
+                                    data-test-d="{{ test.d }}"
+                                    data-test-correct="{{ test.correct }}"
+                                    data-test-section="{{ test.test_section.id }}"
+                            />
+                        </button>
+                        <form action="{% url 'delete-test' test.id %}" method="post">
+                            {% csrf_token %}
+                            <button type="submit"><img src="{% static 'images/edit-2%20copy%204.svg' %}" alt="delete"/>
+                            </button>
+                        </form>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock %}
+
+{% block change %}
+
+    {#Update test#}
+    <div class="modal hidden" id="update-test-modal">
+        <form action="{% url 'update-test' 0 %}" method="post">
+            {% csrf_token %}
+            <h1>Test o'zgartirish</h1>
+            <select name="test_section_id" id="">
+                {% for test_section in test_sections %}
+                    <option value="{{ test_section.id }}">{{ test_section.title }}</option>
+                {% endfor %}
+            </select>
+            <input type="text" name="question" placeholder="Nomi" id=""/>
+            <input type="text" name="a" placeholder="A" id=""/>
+            <input type="text" name="b" placeholder="B" id=""/>
+            <input type="text" name="c" placeholder="C" id=""/>
+            <input type="text" name="d" placeholder="D" id=""/>
+
+            <select name="correct" id="">
+                <option value="a">A</option>
+                <option value="b">B</option>
+                <option value="c">C</option>
+                <option value="d">D</option>
+            </select>
+
+            <div class="buttons">
+                <button class="cancel-btn unversal-btn" type="reset">Orqaga</button>
+                <button class="unversal-btn add-btn" type="submit">O'zgartirish</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Add topic -->
+
+    <div class="modal hidden" id="add-test-modal">
+        <form action="{% url 'create-test' %}" method="post">
+            {% csrf_token %}
+            <h1>Test qo’shish</h1>
+            <select name="test_section_id" id="">
+                {% for test_section in test_sections %}
+                    <option value="{{ test_section.id }}">{{ test_section.title }}</option>
+                {% endfor %}
+            </select>
+            <input type="text" name="question" placeholder="Nomi" id=""/>
+            <input type="text" name="a" placeholder="A" id=""/>
+            <input type="text" name="b" placeholder="B" id=""/>
+            <input type="text" name="c" placeholder="C" id=""/>
+            <input type="text" name="d" placeholder="D" id=""/>
+
+            <select name="correct" id="">
+                <option value="a">A</option>
+                <option value="b">B</option>
+                <option value="c">C</option>
+                <option value="d">D</option>
+            </select>
+
+            <div class="buttons">
+                <button class="cancel-btn unversal-btn" type="reset">Orqaga</button>
+                <button class="unversal-btn add-btn" type="submit">Qo'shish</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="modal hidden" id="add-testsection-modal">
+        <form action="{% url 'create-test-section' %}" method="post">
+            {% csrf_token %}
+            <h1>Mavzu qo’shish</h1>
+            <input type="text" name="title" placeholder="Nomi" id=""/>
+
+            <div class="buttons">
+                <button class="cancel-btn unversal-btn" type="reset">Orqaga</button>
+                <button class="unversal-btn add-btn" type="submit">Qo'shish</button>
+            </div>
+        </form>
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            // Test qo'shish tugmasi va modalni ochish
+            const addTestButton = document.querySelector('.add-test button');
+            const addTestModal = document.querySelector('#add-test-modal');
+
+            if (addTestButton && addTestModal) {
+                addTestButton.addEventListener('click', () => {
+                    console.log("Test qo'shish tugmasi bosildi");
+                    addTestModal.classList.remove('hidden');
+                });
+            } else {
+                console.error("Test qo'shish elementi topilmadi!");
+            }
+
+            // Test Section qo'shish tugmasi va modalni ochish
+            const addTestSectionButton = document.querySelector('.add-test-section button');
+            const addTestSectionModal = document.querySelector('#add-testsection-modal');
+
+            if (addTestSectionButton && addTestSectionModal) {
+                addTestSectionButton.addEventListener('click', () => {
+                    console.log("Test Section qo'shish tugmasi bosildi");
+                    addTestSectionModal.classList.remove('hidden');
+                });
+            } else {
+                console.error("Test Section elementi topilmadi!");
+            }
+
+            // Modalni yopish
+            document.querySelectorAll('.cancel-btn').forEach(button => {
+                button.addEventListener('click', function () {
+                    const modal = this.closest('.modal');
+                    if (modal) {
+                        console.log("Modal yopildi");
+                        modal.classList.add('hidden');
+                    }
+                });
+            });
+        });
+
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const editButtons = document.querySelectorAll('.edit-test-btn'); // Barcha "Edit" tugmalari
+            const editModal = document.querySelector('#update-test-modal'); // Modal
+            const form = editModal.querySelector('form'); // Modal ichidagi forma
+
+            // Har bir "Edit" tugmasi uchun event qo'shish
+            editButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    // Tugmadan test ma'lumotlarini olish
+                    const testId = button.getAttribute('data-test-id');
+                    const question = button.getAttribute('data-test-question');
+                    const a = button.getAttribute('data-test-a');
+                    const b = button.getAttribute('data-test-b');
+                    const c = button.getAttribute('data-test-c');
+                    const d = button.getAttribute('data-test-d');
+                    const correct = button.getAttribute('data-test-correct');
+                    const section = button.getAttribute('data-test-section');
+
+                    // Modal ichidagi inputlarni topish va ularni to'ldirish
+                    form.action = `/admin2/update-test/${testId}`; // Testni o'zgartirish yo'li
+                    form.querySelector('input[name="question"]').value = question;
+                    form.querySelector('input[name="a"]').value = a;
+                    form.querySelector('input[name="b"]').value = b;
+                    form.querySelector('input[name="c"]').value = c;
+                    form.querySelector('input[name="d"]').value = d;
+                    form.querySelector('select[name="correct"]').value = correct;
+                    form.querySelector('select[name="test_section_id"]').value = section;
+
+                    // Modalni ko'rsatish
+                    editModal.classList.remove('hidden');
+                });
+            });
+
+            // Modalni yopish
+            editModal.querySelector('.cancel-btn').addEventListener('click', (e) => {
+                e.preventDefault(); // Formani reset qilmaslik uchun
+                editModal.classList.add('hidden');
+            });
+        });
+
+    </script>
+{% endblock %}

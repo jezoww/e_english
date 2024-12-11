@@ -1,0 +1,263 @@
+{% extends 'user/user-base.html' %}
+{% load static %}
+{% block main %}
+    <section class="form-section">
+        <div class="container">
+            <div class="form-content">
+                <form id="test-form" method="post" action="{% url 'start-test' %}">
+                    {% csrf_token %}
+                    <div>
+                        <label for="unit_id">Mavzuni tanlang:</label>
+                        <select name="unit_id" id="unit_id" required>
+                            {% for unit in units %}
+                                <option value="{{ unit.id }}">Unit {{ unit.unit_num }}: {{ unit.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label for="quantity">Savollar soni:</label>
+                        <input type="number" name="quantity" id="quantity" min="1" required placeholder="Savollar soni">
+                    </div>
+                    <div>
+                        <label for="type_of_test">Savollar turi:</label>
+                        <select name="type_of_test" id="type_of_test" required>
+                            <option value="text">Text</option>
+                            <option value="audio">Audio</option>
+                        </select>
+                    </div>
+                    <button type="submit">Sinab ko‘rish</button>
+                </form>
+            </div>
+        </div>
+    </section>
+    <section class="translation-section">
+        <div class="container">
+            <div class="translation-content">
+                <table class="translation-table">
+                    <thead class="translation-header">
+                    <tr class="translation-header-row">
+                        <th class="translation-header-cell">
+                            English
+                            <img class="translation-icon" src="{% static 'images/english_icon.svg' %}"
+                                 alt="English icon">
+                        </th>
+                        <th class="translation-header-cell">
+                            O'zbekcha
+                            <img class="translation-icon" src="{% static 'images/uzb_icon.svg' %}" alt="Uzbek icon">
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody class="translation-body">
+                    {% for vocab in vocabs %}
+                        <tr class="translation-row">
+                            <td class="translation-cell">{{ vocab.english }}</td>
+                            <td class="translation-cell">{{ vocab.uzbek }}</td>
+                            <td class="translation-cell">
+                                <audio controls>
+                                    <source src="{{ vocab.audio.url }}">
+                                </audio>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <div class="pagination">
+        {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}" class="arrow">&lt;</a>
+        {% else %}
+            <span class="arrow disabled">&lt;</span>
+        {% endif %}
+
+        {% for page_num in page_obj.paginator.page_range %}
+            {% if page_num == page_obj.number %}
+                <span class="page-number active">{{ page_num }}</span>
+            {% elif page_num >= page_obj.number|add:'-2' and page_num <= page_obj.number|add:'2' %}
+                <a href="?page={{ page_num }}" class="page-number">{{ page_num }}</a>
+            {% elif page_num == 1 or page_num == page_obj.paginator.num_pages %}
+                <a href="?page={{ page_num }}" class="page-number">{{ page_num }}</a>
+            {% elif page_num == page_obj.number|add:'-3' or page_num == page_obj.number|add:'3' %}
+                <span class="dots">...</span>
+            {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}" class="arrow">&gt;</a>
+        {% else %}
+            <span class="arrow disabled">&gt;</span>
+        {% endif %}
+    </div>
+
+{% endblock %}
+{% block change %}
+    <!-- essential modal -->
+    <div class="essential-modal hidden">
+        <div class="essential-modal-content">
+            <div class="essential-modal-header">
+                <h1 class="essential-num">2.</h1>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: 10%;"></div>
+                </div>
+                <div>
+                    <img class="close-btn" src="{% static 'images/close-btn.svg' %}" alt="close btn">
+                </div>
+            </div>
+            <div class="essential-modal-body">
+                <!-- Bu yerga test savollari yoki so'zlar yuklanadi -->
+            </div>
+            <fieldset class="essential-modal-footer">
+                <legend for="input-translation" class="labeline">Tarjima kiriting</legend>
+                <input type="text" placeholder="Ruxsat berish" class="essential-modal-input"/>
+            </fieldset>
+            <div class="essential-modal-button-wrap">
+                <button class="essential-modal-button">Keyingi</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- audio modal -->
+    <div class="audio-modal hidden">
+        <div class="audio-modal-content">
+            <div class="audio-modal-header">
+                <h1 class="audio-num">2.</h1>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: 10%;"></div>
+                </div>
+                <div>
+                    <img src="{% static 'images/close-btn.svg' %}" alt="close btn" class="close-btn">
+                </div>
+            </div>
+            <div class="audio-modal-body">
+                <div class="audio-player">
+                    <img src="{% static 'images/audio-btn.svg' %}" alt="" id="play-pause">
+                    <input type="range" id="seek-bar" value="0" class="audio-input">
+                </div>
+                <audio id="audio">
+                    <source src="./music/Amr Diab - Habibi.mp3" type="audio/mpeg">
+                    Your browser does not support the audio element.
+                </audio>
+                <img src="{% static 'images/check.svg' %}" alt="Check Icon" class="audio-check-icon">
+                <img src="{% static 'images/x-icon.svg' %}" alt="X Icon" class="audio-x-icon">
+            </div>
+            <fieldset class="audio-modal-footer">
+                <legend for="input-translation" class="labeline">So’zni kiriting</legend>
+                <input type="text" placeholder="Audiodagi so’zni kiriting" class="audio-modal-input"/>
+            </fieldset>
+            <div class="audio-modal-button-wrap">
+                <button class="audio-modal-button">Keyingi</button>
+            </div>
+        </div>
+    </div>
+    <!-- result modal -->
+    <div class="result-modal hidden">
+        <div class="result-modal-content">
+            <div class="result-modal-header">
+                <h1 class="result-num">20.</h1>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: 100%;"></div>
+                </div>
+                <div>
+                    <img src="{% static 'images/close-btn.svg' %}" alt="close btn" class="close-btn">
+                </div>
+            </div>
+            <div class="result-modal-body">
+                <div class="result-wrap">
+                    <h1 class="result">12</h1>
+                    <img src="{% static 'images/check.svg' %}" alt="Check Icon" class="result-check-icon">
+                </div>
+                <div class=" result-wrap">
+                    <h1 class="result">8</h1>
+                    <img src="{% static 'images/x-icon.svg' %}" alt="X Icon" class="result-x-icon">
+                </div>
+            </div>
+            <div class=" result-modal-footer">
+                <button class="result-modal-button--again">Qayta boshlash</button>
+                <button class="result-modal-button">Keyingi</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const form = document.getElementById("test-form");
+            const textModal = document.querySelector(".essential-modal");
+            const audioModal = document.querySelector(".audio-modal");
+            const modalBody = document.querySelector(".essential-modal-body");
+            const modalInput = document.querySelector(".essential-modal-input");
+            let currentQuestionIndex = 0;
+            let questions = [];
+
+            form.addEventListener("submit", (e) => {
+                e.preventDefault();
+
+                const formData = new FormData(form);
+
+                fetch(form.action, {
+                    method: "POST",
+                    headers: {
+                        "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken]").value
+                    },
+                    body: formData
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            questions = data.questions;
+                            currentQuestionIndex = 0;
+
+                            // Modalni ochish (text yoki audio turi uchun)
+                            if (data.test_type === "text") {
+                                showQuestion(questions[currentQuestionIndex], "text");
+                                textModal.classList.remove("hidden");
+                            } else if (data.test_type === "audio") {
+                                showQuestion(questions[currentQuestionIndex], "audio");
+                                audioModal.classList.remove("hidden");
+                            }
+                        } else {
+                            alert(data.error || "Xato yuz berdi!");
+                        }
+                    })
+                    .catch(err => console.error("Xatolik:", err));
+            });
+
+            // Modalni yopish
+            document.querySelectorAll(".close-btn").forEach(btn => {
+                btn.addEventListener("click", () => {
+                    textModal.classList.add("hidden");
+                    audioModal.classList.add("hidden");
+                });
+            });
+
+            // "Keyingi" tugmasi bosilganda keyingi savolni ko'rsatish
+            document.querySelector(".essential-modal-button").addEventListener("click", () => {
+                currentQuestionIndex++;
+                if (currentQuestionIndex < questions.length) {
+                    showQuestion(questions[currentQuestionIndex], "text");
+                } else {
+                    alert("Test tugadi!");
+                    textModal.classList.add("hidden");
+                }
+            });
+
+            // Savolni modalda ko'rsatish funksiyasi
+            function showQuestion(question, type) {
+                modalBody.innerHTML = "";
+                if (type === "text") {
+                    modalBody.innerHTML = `<p>${question.english}</p>`;
+                } else if (type === "audio") {
+                    modalBody.innerHTML = `<audio controls>
+                                      <source src="${question.audio}" type="audio/mpeg">
+                                      Your browser does not support the audio element.
+                                   </audio>`;
+                }
+                modalInput.value = "";
+            }
+        });
+
+    </script>
+
+
+{% endblock %}

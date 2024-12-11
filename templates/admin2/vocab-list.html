@@ -1,0 +1,156 @@
+{% extends 'admin2/admin-base.html' %}
+{% load static %}
+{% block main %}
+    <form method="post" class="main__nav">
+        {% csrf_token %}
+        <div class="search">
+            <input
+                    type="search"
+                    name="search"
+                    id=""
+                    placeholder="Problem title"
+            />
+            <button type="submit">
+                <img src="{% static 'images/search-icon.svg' %}" alt=""/>
+            </button>
+        </div>
+    </form>
+    <div class="submit">
+        <button type="button">Qo'shish</button>
+    </div>
+    <div class="submit-excel">
+        <button type="button">Excel filedan yuklab olish</button>
+    </div>
+    <div class="unit-list">
+        <ul>
+            {% for vocab in vocabs %}
+                <li class="unit-list-item">
+                    <span class="word-pair">
+                        <strong>{{ vocab.uzbek }}</strong> - <em>{{ vocab.english }}</em>
+                    </span>
+                    <div class="right">
+                        <audio controls>
+                            <source src="{{ vocab.audio.url }}">
+                            Cannot upload audio.
+                        </audio>
+                        <button type="button" class="edit-btn"
+                                data-id="{{ vocab.id }}"
+                                data-uzbek="{{ vocab.uzbek }}"
+                                data-english="{{ vocab.english }}"
+                                data-unit-id="{{ vocab.unit.id }}">
+                            <img src="{% static 'images/edit-2%20copy%203.svg' %}" alt="Edit">
+                        </button>
+
+                        <form action="{% url 'vocab-delete' vocab.id %}" method="post">
+                            {% csrf_token %}
+                            <button type="submit"><img src="{% static 'images/edit-2%20copy%204.svg' %}" alt="delete"/>
+                            </button>
+                        </form>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="pagination">
+    {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}" class="arrow">&lt;</a>
+    {% else %}
+        <span class="arrow disabled">&lt;</span>
+    {% endif %}
+
+    {% for page_num in page_obj.paginator.page_range %}
+        {% if page_num == page_obj.number %}
+            <span class="page-number active">{{ page_num }}</span>
+        {% elif page_num >= page_obj.number|add:'-2' and page_num <= page_obj.number|add:'2' %}
+            <a href="?page={{ page_num }}" class="page-number">{{ page_num }}</a>
+        {% elif page_num == 1 or page_num == page_obj.paginator.num_pages %}
+            <a href="?page={{ page_num }}" class="page-number">{{ page_num }}</a>
+        {% elif page_num == page_obj.number|add:'-3' or page_num == page_obj.number|add:'3' %}
+            <span class="dots">...</span>
+        {% endif %}
+    {% endfor %}
+
+    {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}" class="arrow">&gt;</a>
+    {% else %}
+        <span class="arrow disabled">&gt;</span>
+    {% endif %}
+</div>
+
+{% endblock %}
+
+{% block change %}
+    <div class="modal hidden" id="vocab-update-modal">
+        <form action="{% url 'vocab-update' 0 %}" method="post">
+            {% csrf_token %}
+            <h1>So'z o’zgartirish</h1>
+            <input
+                    type="text"
+                    name="uzbek"
+                    placeholder="O'zbekcha"
+                    id=""
+            />
+            <input
+                    type="text"
+                    name="english"
+                    placeholder="Inglizcha"
+                    id=""
+            />
+            <div class="books-group">
+                <div class="books-dropdown-wrapper">
+                    <input type="text" id="books-input" placeholder="Unit" readonly>
+                    <img class="dropdown-icon" src="{% static 'images/Vector.svg' %}" alt="Dropdown arrow">
+                </div>
+                <select name="unit_id" id="unit_id">
+                    {% for unit in units %}
+                        <option value="{{ unit.id }}">
+                            Unit {{ unit.unit_num }}: {{ unit.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="buttons">
+                <button class="cancel-btn unversal-btn" type="reset">Orqaga</button>
+                <button class="unversal-btn add-btn" type="submit">Qo'shish</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="modal hidden" id="add-vocab-modal">
+        <form action="{% url 'vocab-create' %}" method="post">
+            {% csrf_token %}
+            <h1>So'z qo’shish</h1>
+            <input type="text" name="uzbek" placeholder="O'zbekcha" id=""/>
+            <input type="text" name="english" placeholder="Inglizcha" id=""/>
+
+            <select name="unit_id" id="unit_id">
+                {% for unit in units %}
+                    <option value="{{ unit.id }}">Unit {{ unit.unit_num }}: {{ unit.name }}</option>
+                {% endfor %}
+            </select>
+
+            <div class="buttons">
+                <button class="cancel-btn unversal-btn" type="reset">Orqaga</button>
+                <button class="unversal-btn add-btn" type="submit">Qo'shish</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="modal hidden" id="add-vocab-excel-modal">
+        <form action="{% url 'vocab-create-excel' %}" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <h1>So'z qo’shish</h1>
+            <input type="file" name="excel">
+            <select name="unit_id" id="unit_id">
+                {% for unit in units %}
+                    <option value="{{ unit.id }}">Unit {{ unit.unit_num }}: {{ unit.name }}</option>
+                {% endfor %}
+            </select>
+            <div class="buttons">
+                <button class="cancel-btn unversal-btn" type="reset">Orqaga</button>
+                <button class="unversal-btn add-btn" type="submit">Qo'shish</button>
+            </div>
+        </form>
+    </div>
+{% endblock %}

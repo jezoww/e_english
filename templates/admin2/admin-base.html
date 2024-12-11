@@ -1,0 +1,49 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}"/>
+    <title>{% block title %}{% endblock %}</title>
+</head>
+<body>
+<div class="wrapper">
+    <aside>
+        <div class="logo">
+            <a href="{% url 'index' %}"><img src="{% static 'images/Logo%201.svg' %}" alt=""/></a>
+        </div>
+        <div class="menu">
+            <div class="essentials">
+                <a href="{% url 'book-list' %}">
+                    <button><img src="{% static 'images/unit-icon.svg' %}" alt=""/> Essentials</button>
+                </a>
+            </div>
+            <div class="units">
+                <a href="{% url 'unit-list' %}">
+                    <button><img src="{% static 'images/essential-icon.svg' %}" alt=""/> Units</button>
+                </a>
+            </div>
+            <div class="vocabs">
+                <a href="{% url 'vocab-list' %}">
+                    <button><img src="{% static 'images/vocabulary-icon.png' %}" alt=""/> Vocabularies</button>
+                </a>
+            </div>
+            <div class="tests">
+                <a href="{% url 'test-list' %}">
+                    <button><img src="{% static 'images/test-icon.svg' %}" alt="">Tests</button>
+                </a>
+            </div>
+        </div>
+    </aside>
+    <main>
+        {% block main %}
+        {% endblock %}
+    </main>
+</div>
+{% block change %}
+
+{% endblock %}
+<script src="{% static 'js/main.js' %}"></script>
+</body>
+</html>
